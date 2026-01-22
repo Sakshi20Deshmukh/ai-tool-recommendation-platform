@@ -26,12 +26,12 @@ def home():
 @app.route("/analyze", methods=["POST"])
 def analyze():
     try:
-        data = request.get_json(silent=True)
+        data = request.get_json()
 
         if not data or "prompt" not in data:
             return jsonify({"error": "Prompt is required"}), 400
 
-        prompt = data["prompt"].strip()
+        prompt = data.get("prompt")
 
         if not prompt:
             return jsonify({"error": "Prompt cannot be empty"}), 400
@@ -43,8 +43,9 @@ def analyze():
         if len(prompt.split()) < 3:
             return jsonify({"error": "Prompt too short to understand"}), 400
         
-        print(f"[INFO] Prompt received: {prompt}")
-        print(f"[INFO] LLM response: {result}")
+        print("PROMPT RECEIVED:", prompt)  # log prompt
+        result = generate_project(prompt)
+        print("RESULT GENERATED:", result)  # log result
 
 
         # ---- SAFE EXECUTION BLOCK ----
@@ -88,21 +89,21 @@ def analyze():
         #     "generated_components": components
         # }), 200
 
-        result = generate_project(prompt)
 
-        required_keys = {"analysis", "tools", "roadmap", "components"}
-        if not isinstance(result, dict) or not required_keys.issubset(result.keys()):
-            return jsonify({"error": "AI response invalid"}), 500
+        # required_keys = {"analysis", "tools", "roadmap", "components"}
+        # if not isinstance(result, dict) or not required_keys.issubset(result.keys()):
+        #     return jsonify({"error": "AI response invalid"}), 500
 
-        return jsonify(result)
+        return jsonify({"result": result})
 
 
 
     except Exception as e:
-        print("FATAL BACKEND ERROR:", e)
-        return jsonify({"error": "Internal server error"}), 500
-
-
+        # THIS WILL PRINT THE ACTUAL ERROR
+        import traceback
+        traceback.print_exc()
+        return jsonify({"error": str(e)}), 500
+    
 # for cloud hosting.
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
