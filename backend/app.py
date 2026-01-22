@@ -19,28 +19,55 @@ def home():
 @app.route("/analyze", methods=["POST"])
 def analyze():
     try:
-        data = request.get_json()
-        prompt = data.get("prompt", "").strip()
+        data = request.get_json(silent=True)
 
-        print("PROMPT RECEIVED >>>", repr(prompt))
+        if not data or "prompt" not in data:
+            return jsonify({"error": "Prompt is required"}), 400
 
-        # 1️⃣ Empty check
+        prompt = data["prompt"].strip()
+
         if not prompt:
             return jsonify({"error": "Prompt cannot be empty"}), 400
 
-        # 2️⃣ Symbols-only / meaningless check
         if not re.search(r"[a-zA-Z]", prompt):
             return jsonify({"error": "Please enter a meaningful project description"}), 400
 
-        # 3️⃣ Too short check (less than 3 words)
         if len(prompt.split()) < 3:
             return jsonify({"error": "Prompt too short to understand"}), 400
 
-        # 4️⃣ SUCCESS — call your existing functions
-        analysis = analyze_prompt(prompt)
-        tools = recommend_tools(analysis)
-        roadmap = generate_roadmap(analysis)
-        components = generate_components(analysis)
+        # ---- SAFE EXECUTION BLOCK ----
+
+        try:
+            analysis = analyze_prompt(prompt)
+            if not analysis:
+                analysis = {}
+        except Exception as e:
+            print("ERROR analyze_prompt:", e)
+            analysis = {}
+
+        try:
+            tools = recommend_tools(analysis)
+            if not tools:
+                tools = []
+        except Exception as e:
+            print("ERROR recommend_tools:", e)
+            tools = []
+
+        try:
+            roadmap = generate_roadmap(analysis)
+            if not roadmap:
+                roadmap = []
+        except Exception as e:
+            print("ERROR generate_roadmap:", e)
+            roadmap = []
+
+        try:
+            components = generate_components(analysis)
+            if not components:
+                components = []
+        except Exception as e:
+            print("ERROR generate_components:", e)
+            components = []
 
         return jsonify({
             "analysis": analysis,
@@ -50,8 +77,9 @@ def analyze():
         }), 200
 
     except Exception as e:
-        print("BACKEND ERROR:", e)
-        return jsonify({"error": "Backend not reachable"}), 500
+        print("FATAL BACKEND ERROR:", e)
+        return jsonify({"error": "Internal server error"}), 500
+
 
 # for cloud hosting.
 if __name__ == "__main__":
