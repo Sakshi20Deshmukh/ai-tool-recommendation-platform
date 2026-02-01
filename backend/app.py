@@ -2,22 +2,28 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 import re
 import os
+
 from llm_engine import generate_project
+
+# ✅ Import fallback generators
+from prompt_parser import analyze_prompt
+from tool_recommender import recommend_tools
+from roadmap_generator import generate_roadmap
+from ai_generator import generate_components
 
 app = Flask(__name__)
 CORS(app)
 
-# Health check
+# ---------------- HEALTH ----------------
 @app.route("/health", methods=["GET"])
 def health():
     return jsonify({"status": "ok"}), 200
 
-# Root endpoint
 @app.route("/", methods=["GET"])
 def home():
     return jsonify({"status": "Backend running successfully"}), 200
 
-# Analyze endpoint
+# ---------------- ANALYZE ----------------
 @app.route("/analyze", methods=["POST"])
 def analyze():
     try:
@@ -37,11 +43,26 @@ def analyze():
         if len(prompt.split()) < 3:
             return jsonify({"error": "Prompt too short to understand"}), 400
 
-        print("PROMPT RECEIVED:", prompt)  # logs for Render
-        result = generate_project(prompt)
-        print("RESULT GENERATED:", result)  # logs for Render
+        print("PROMPT RECEIVED:", prompt)
 
-        # Return result in a consistent JSON structure
+        # 🧠 Try LLM first
+        llm_result = generate_project(prompt)
+        if llm_result:
+            return jsonify(llm_result), 200
+
+        # 🔁 Fallback logic
+        analysis = analyze_prompt(prompt)
+        tools = recommend_tools(analysis)
+        roadmap = generate_roadmap(analysis)
+        components = generate_components(prompt)
+
+        result = {
+            "analysis": analysis,
+            "tools": tools,
+            "roadmap": roadmap,
+            "components": components
+        }
+
         return jsonify(result), 200
 
     except Exception as e:
@@ -50,13 +71,10 @@ def analyze():
         return jsonify({"error": str(e)}), 500
 
 
-# For cloud hosting
+# ---------------- RUN ----------------
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port, debug=False)
-
-
-
 
 
 
