@@ -1,6 +1,8 @@
 import os
 import json
 
+print("API KEY FOUND:", bool(os.getenv("GEMINI_API_KEY")))
+
 def generate_project(prompt):
     try:
         import google.generativeai as genai
