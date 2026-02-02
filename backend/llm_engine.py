@@ -11,21 +11,21 @@ def generate_project(prompt: str):
         client = genai.Client(api_key=api_key)
 
         response = client.models.generate_content(
-            model="gemini-1.5-flash",
-            contents=prompt,
-            config={
-                "system_instruction": (
-                    "You are an expert AI software architect. "
-                    "Return ONLY valid JSON in this format:\n"
-                    "{"
-                    "\"analysis\": {\"project_type\": [], \"domain\": [], \"difficulty\": \"\"},"
-                    "\"tools\": [],"
-                    "\"roadmap\": [],"
-                    "\"components\": []"
-                    "}"
-                )
-            }
-        )
+        model="models/gemini-1.0-pro",
+        contents=prompt,
+        config={
+            "system_instruction": (
+                "You are an expert AI software architect. "
+                "Return ONLY valid JSON in this format:\n"
+                "{"
+                "\"analysis\": {\"project_type\": [], \"domain\": [], \"difficulty\": \"\"},"
+                "\"tools\": [],"
+                "\"roadmap\": [],"
+                "\"components\": []"
+                "}"
+            )
+        }
+    )
 
         text = response.text
         if not text:
