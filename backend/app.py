@@ -5,11 +5,11 @@ import os
 
 from llm_engine import generate_project
 
-# ✅ Import fallback generators
-from prompt_parser import analyze_prompt
-from tool_recommender import recommend_tools
-from roadmap_generator import generate_roadmap
-from ai_generator import generate_components
+# # ✅ Import fallback generators
+# from prompt_parser import analyze_prompt
+# from tool_recommender import recommend_tools
+# from roadmap_generator import generate_roadmap
+# from ai_generator import generate_components
 
 app = Flask(__name__)
 CORS(app)
@@ -28,11 +28,10 @@ def home():
 def analyze():
     try:
         data = request.get_json()
-
-        if not data or "prompt" not in data:
-            return jsonify({"error": "Prompt is required"}), 400
-
         prompt = data.get("prompt", "").strip()
+
+        if not prompt:
+            return jsonify({"error": "Prompt is required"}), 400
 
         if not prompt:
             return jsonify({"error": "Prompt cannot be empty"}), 400
@@ -43,26 +42,8 @@ def analyze():
         if len(prompt.split()) < 3:
             return jsonify({"error": "Prompt too short to understand"}), 400
 
-        print("PROMPT RECEIVED:", prompt)
 
-        # 🧠 Try LLM first
-        llm_result = generate_project(prompt)
-        if llm_result:
-            return jsonify(llm_result), 200
-
-        # 🔁 Fallback logic
-        analysis = analyze_prompt(prompt)
-        tools = recommend_tools(analysis)
-        roadmap = generate_roadmap(analysis)
-        components = generate_components(prompt)
-
-        result = {
-            "analysis": analysis,
-            "tools": tools,
-            "roadmap": roadmap,
-            "components": components
-        }
-
+        result = generate_project(prompt)
         return jsonify(result), 200
 
     except Exception as e:
