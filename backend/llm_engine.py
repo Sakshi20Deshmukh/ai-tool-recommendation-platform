@@ -6,35 +6,33 @@ def generate_project(prompt: str):
     try:
         api_key = os.getenv("GEMINI_API_KEY")
         if not api_key:
-            raise ValueError("GEMINI_API_KEY not found")
+            raise ValueError("GEMINI_API_KEY missing")
 
-        genai.configure(api_key=api_key)
+        client = genai.Client(api_key=api_key)
 
-        model = genai.GenerativeModel(
-            model_name="gemini-1.5-flash",
-            system_instruction="""
-You are an expert AI software architect.
-Return ONLY raw JSON. No text. No markdown.
-"""
+        response = client.models.generate_content(
+            model="gemini-1.5-flash",
+            contents=prompt,
+            config={
+                "system_instruction": (
+                    "You are an expert AI software architect. "
+                    "Return ONLY valid JSON in this format:\n"
+                    "{"
+                    "\"analysis\": {\"project_type\": [], \"domain\": [], \"difficulty\": \"\"},"
+                    "\"tools\": [],"
+                    "\"roadmap\": [],"
+                    "\"components\": []"
+                    "}"
+                )
+            }
         )
 
-        response = model.generate_content(prompt)
-
-        print("RAW LLM RESPONSE:", response)
-        print("RAW LLM TEXT:", response.text)
-
-        raw = response.text
-        if not raw:
-            raise ValueError("Empty response from Gemini")
-
-        start = raw.find("{")
-        end = raw.rfind("}") + 1
-
-        json_text = raw[start:end]
-        return json.loads(json_text)
+        text = response.text
+        start = text.find("{")
+        end = text.rfind("}") + 1
+        return json.loads(text[start:end])
 
     except Exception as e:
-        print("LLM ERROR:", e)
         return {
             "analysis": {"project_type": [], "domain": [], "difficulty": ""},
             "tools": [],
