@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { analyzePromptWithHybridAgent } from "@/lib/hybridAgent"
+import { analyzePromptWithHybridAgent } from "@/lib/ai/hybridAgent"
 
 function isValidPrompt(prompt: string): boolean {
 

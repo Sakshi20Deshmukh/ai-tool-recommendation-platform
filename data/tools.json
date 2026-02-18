@@ -1,0 +1,38 @@
+[
+  {
+    "id": "eraser_ai",
+    "name": "Eraser AI",
+    "category": "architecture",
+    "techStack": ["any"],
+    "projectLevel": ["beginner", "intermediate", "advanced"],
+    "url": "https://eraser.io",
+    "description": "Generate system architecture diagrams"
+  },
+  {
+    "id": "v0_dev",
+    "name": "v0.dev",
+    "category": "ui",
+    "techStack": ["react", "nextjs"],
+    "projectLevel": ["beginner", "intermediate"],
+    "url": "https://v0.dev",
+    "description": "Generate UI components"
+  },
+  {
+    "id": "supabase",
+    "name": "Supabase",
+    "category": "backend",
+    "techStack": ["node", "nextjs"],
+    "projectLevel": ["intermediate", "advanced"],
+    "url": "https://supabase.com",
+    "description": "Backend and database platform"
+  },
+  {
+    "id": "vercel",
+    "name": "Vercel",
+    "category": "deployment",
+    "techStack": ["any"],
+    "projectLevel": ["beginner", "intermediate"],
+    "url": "https://vercel.com",
+    "description": "Deploy web applications"
+  }
+]

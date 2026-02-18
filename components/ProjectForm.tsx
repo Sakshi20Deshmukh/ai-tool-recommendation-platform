@@ -158,10 +158,16 @@ Project Level: ${projectLevel}
       throw new Error('Recommendation engine returned no tools')
     }
 
-    // 4️⃣ SAVE + REDIRECT
+    // 4️⃣ SAVE AI OUTPUT (🔥 THIS WAS MISSING)
+    localStorage.setItem('aiOutput', JSON.stringify(analyzeData))
+
+    // 5️⃣ SAVE TOOLS
     localStorage.setItem('recommendedTools', JSON.stringify(tools))
+
+    // 6️⃣ REDIRECT
     setLoading(false)
     router.push('/results')
+
 
   } catch (err) {
     console.error(err)
