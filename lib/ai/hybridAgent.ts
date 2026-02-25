@@ -2,21 +2,20 @@ export async function analyzePromptWithHybridAgent(prompt: string) {
 
 try {
 
-const response = await fetch("http://localhost:11434/api/generate", {
-
+const response = await fetch(
+`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=AIzaSyAQURTMv6wP3oyUHwX_ePaCYRl4Sn2dGwQ`,
+{
 method: "POST",
-
 headers: {
-
 "Content-Type": "application/json"
-
 },
-
 body: JSON.stringify({
 
-model: "phi3",
-
-prompt: `
+contents: [
+{
+parts: [
+{
+text: `
 You are an AI system.
 
 Analyze this project idea:
@@ -33,9 +32,11 @@ Return ONLY JSON in this format:
 }
 
 DO NOT WRITE ANYTHING ELSE.
-`,
-
-stream: false
+`
+}
+]
+}
+]
 
 })
 
@@ -43,7 +44,8 @@ stream: false
 
 const data = await response.json()
 
-const text = data.response
+// Gemini response format
+const text = data.candidates[0].content.parts[0].text
 
 const jsonStart = text.indexOf("{")
 const jsonEnd = text.lastIndexOf("}") + 1

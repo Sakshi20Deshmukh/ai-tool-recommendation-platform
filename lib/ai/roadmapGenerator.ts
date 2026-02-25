@@ -16,56 +16,45 @@ type Tool = {
   url: string;
 };
 
-export function generateRoadmap(
-  aiOutput: AIOutput,
-  tools: Tool[]
-): RoadmapStep[] {
+export function generateRoadmap(aiOutput: any) {
 
-  // ✅ Safety check
-  if (!aiOutput || !aiOutput.valid) return [];
-
-  if (!Array.isArray(aiOutput.requirements)) return [];
-
-  const roadmap: RoadmapStep[] = [];
-
-  const stepMap: Record<string, string> = {
-
-  architecture: "Design system architecture",
-
-  ui: "Build frontend UI",
-
-  backend: "Setup backend",
-
-  database: "Setup database",
-
-  deployment: "Deploy application",
-
-  "AI": "Integrate AI features"
-
-};
+if (!aiOutput?.valid)
+return [];
 
 
-  aiOutput.requirements.forEach((req, index) => {
+const stack = aiOutput.techStack || {};
 
-  const tool = tools.find(
-  t => t.category.toLowerCase() === req.toLowerCase()
-  );
 
-    // ✅ ONLY push if tool exists OR fallback safely
-    roadmap.push({
+return [
 
-      step: index + 1,
+{
+step: 1,
+title: "Design system architecture",
+tool: "Eraser AI",
+toolLink: "https://eraser.io"
+},
 
-      title: stepMap[req] || `Setup ${req}`,
+{
+step: 2,
+title: `Build frontend using ${stack.frontend || "recommended frontend"}`,
+tool: "v0.dev",
+toolLink: "https://v0.dev"
+},
 
-      tool: tool ? tool.name : "Manual Setup",
+{
+step: 3,
+title: `Build backend using ${stack.backend || "recommended backend"}`,
+tool: "Supabase",
+toolLink: "https://supabase.com"
+},
 
-      toolLink: tool ? tool.url : "#"
+{
+step: 4,
+title: `Deploy using ${stack.deployment || "recommended platform"}`,
+tool: "Vercel",
+toolLink: "https://vercel.com"
+}
 
-    });
-
-  });
-
-  return roadmap;
+];
 
 }

@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { analyzePromptWithHybridAgent } from "@/lib/ai/hybridAgent"
+import { analyzeWithOllama } from "@/lib/ai/ollama";
+
 
 function isValidPrompt(prompt: string): boolean {
 
@@ -63,7 +65,7 @@ export async function POST(request: NextRequest) {
     // ✅ HYBRID AGENT ANALYSIS
     // ✅ RUN HYBRID AGENT
 
-    const agentResult = await analyzePromptWithHybridAgent(prompt)
+    const agentResult = await analyzeWithOllama(prompt)
 
     if (!agentResult.valid) {
 
@@ -75,20 +77,7 @@ export async function POST(request: NextRequest) {
     }
 
     // ✅ RETURN STRUCTURED DATA (THIS IS THE FIX)
-
-    return NextResponse.json({
-
-      valid: true,
-
-      domain: agentResult.domain,
-
-      requirements: agentResult.requirements,
-
-      techStack: agentResult.techStack,
-
-      aiResponse: agentResult.aiResponse
-
-    })
+    return NextResponse.json(agentResult)
 
   }
 

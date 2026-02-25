@@ -14,57 +14,86 @@ export interface AIOutput {
 
 }
 
+export function matchTools(aiOutput: any) {
 
-export function matchTools(aiOutput: AIOutput) {
+try {
 
-  if (!aiOutput.valid) {
-
-    return [];
-
-  }
-
-  const requirements = aiOutput.requirements || [];
-
-  const techStack = aiOutput.techStack || [];
-
-  const level = aiOutput.level || "";
+if (!aiOutput || !aiOutput.valid)
+return [];
 
 
+// If AI recommended tools exist → use them
 
-  const matchedTools = tools.filter((tool: any) => {
+if (
+aiOutput.recommendedTools &&
+Array.isArray(aiOutput.recommendedTools)
+) {
 
-    const categoryMatch =
+return aiOutput.recommendedTools.map((tool: any) => ({
 
-      requirements.includes(tool.category);
+name: tool.toolName || "Unknown Tool",
 
+category: tool.category || "general",
 
+reason: tool.reason || ""
 
-    const stackMatch =
+}));
 
-      techStack.length === 0 ||
-
-      techStack.some((tech: string) =>
-
-        tool.techStack?.includes(tech)
-
-      );
-
-
-
-    const levelMatch =
-
-      !level ||
-
-      tool.projectLevel?.includes(level);
+}
 
 
+// fallback → use tech stack
 
-    return categoryMatch && stackMatch && levelMatch;
+const tools = [];
 
-  });
+if (aiOutput.techStack?.frontend)
+tools.push({
+
+name: aiOutput.techStack.frontend,
+
+category: "frontend"
+
+});
+
+if (aiOutput.techStack?.backend)
+tools.push({
+
+name: aiOutput.techStack.backend,
+
+category: "backend"
+
+});
+
+if (aiOutput.techStack?.database)
+tools.push({
+
+name: aiOutput.techStack.database,
+
+category: "database"
+
+});
+
+if (aiOutput.techStack?.deployment)
+tools.push({
+
+name: aiOutput.techStack.deployment,
+
+category: "deployment"
+
+});
 
 
+return tools;
 
-  return matchedTools;
+
+}
+
+catch (error) {
+
+console.error("Tool matcher error:", error);
+
+return [];
+
+}
 
 }
